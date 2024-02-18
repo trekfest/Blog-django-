@@ -1,0 +1,176 @@
+/* Reset some default browser styles */
+body, h1, h2, h3, p, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #ebdcb2;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #662e1c; /* #662e1c */
+    width: 100%;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+}
+
+.navbar li {
+    display: inline;
+    margin-right: 10px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #ebdcb2; /* #ebdcb2 */
+    /* Add underline effect on hover */
+}
+
+/* Add underline effect on hover */
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+.content-container {
+    margin-top: 50px;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #662e1c; /* #662e1c */
+    color: #ebdcb2; /* #ebdcb2 */
+    margin-top: auto; /* This ensures the footer is pushed to the bottom */
+}
+
+form {
+    width: 300px;
+    margin: 0 auto;
+}
+
+/* Style the heading */
+.login-heading {
+    text-align: center;
+    color: #333; /* Dark gray */
+}
+
+/* Style the form fields and button */
+form input[type="text"],
+form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc; /* Light gray */
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #662e1c; /* Dark brown */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #54250f; /* Darker brown on hover */
+}
+
+
+.comment-form {
+    max-width: 300px; /* You can adjust this as needed */
+    margin-left: 20px; /* Adjust margin as needed */
+    float: left;
+}
+
+
+.content {
+    padding-left: 20px; /* Adjust the value as needed */
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #f2f2f2; /* #f2f2f2 */
+    margin-left: 20px; /* Add margin to the left */
+}
+
+.profile {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Add margin bottom to create space */
+}
+
+.profile h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    margin-left: 0; /* Adjust the margin to move the h2 to the left */
+}
+
+.profile p {
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-left: 0; /* Adjust the margin to move the p to the left */
+}
+
+.profile a {
+    text-decoration: none;
+    color: #fff;
+    display: block; /* Make the anchor tag a block element */
+    margin-left: 0; /* Adjust the margin to move the a tag to the left */
+}
+
+.profile a.btn {
+    background-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.profile a.btn:hover {
+    background-color: #0056b3;
+}
+
+.user-articles {
+    padding: 20px;
+    border: 4px solid #ddd;
+    border-radius: 5px;
+}
+
+.user-articles h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.user-articles ul {
+    list-style: none;
+    padding: 0;
+}
+
+.user-articles li {
+    margin-bottom: 5px;
+}
+
+

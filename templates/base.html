@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% load static %}
+    <link rel ="stylesheet" href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"> <link/>
+    
+    <script src="https://kit.fontawesome.com/537925b044.js" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Add more meta tags, links, or stylesheets as needed -->
+</head>
+<body>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="{% url 'homepage' %}"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i> Profile</a></li>
+            <li><a href="{% url 'login' %}"><i class="fa-solid fa-right-to-bracket"></i> Login</a></li>
+            <li><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+            <li><a href="{% url 'register' %}"><i class="fa-regular fa-registered"></i> Sign up</a></li>
+        </ul>
+    </nav>
+
+    <div class="content-container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Cool Website. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
+
+

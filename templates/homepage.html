@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Welcome to the Homepage{% endblock %}
+
+{% block content %}
+    <div class="wrapper">
+        <header> 
+                <h1><i class="fa-solid fa-blog"></i> Welcome to the Homepage</h1>
+        </header>
+
+        <main>
+            <section class="content">
+                <h2><a href="{% url 'articles:index' %}"><i class="fa-regular fa-newspaper"></i> Latest Articles</a></h2>
+                {% if latest_articles_list %}
+                    <!-- Display a list of latest articles here -->
+                    {% for article in latest_articles_list %}
+                        <article>
+                            <h3>{{ article.title }}</h3>
+                            <p>{{ article.content }}</p>
+                            <!-- Add more details or links to the full article here -->
+                            <a href="{% url 'articles:detail' article.id %}">View Article</a>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    
+                {% endif %}
+            </section>
+        
+            <section class="actions">
+                <!-- Other actions or links can go here -->
+            </section>
+        </main>
+    </div>
+{% endblock %}
+
+
