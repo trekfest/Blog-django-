@@ -3,17 +3,44 @@
 {% block title %}Last Articles{% endblock %}
 
 {% block content %}
-    {% if latest_articles_list %}
-        <ul>
-            {% for article in latest_articles_list %}
-                <li>
-                    <a href="{% url 'articles:detail' article.id %}">
-                        {{ article.article_title }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No articles found.</p>
-    {% endif %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Filter by Category
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for category in categories %}
+                            <a class="dropdown-item" href="?category={{ category.name }}">{{ category.name }}</a>
+                        {% endfor %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href=".">Clear Filter</a>
+                    </div>
+                </div>
+                
+                
+
+                <div class="articles-list">
+                    {% if all_articles_list %}
+                        <ul class="list-group">
+                            {% for article in all_articles_list %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'articles:detail' article.id %}">
+                                        {{ article.article_title }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No articles found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
+
+
+
+

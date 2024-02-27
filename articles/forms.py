@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Article, UserProfile
+from .models import Article, UserProfile, Category
 
 
 class CreationUser(UserCreationForm):
@@ -22,9 +22,10 @@ class CreationUser(UserCreationForm):
 
 
 class ArticleForm(forms.ModelForm):
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
     class Meta:
         model = Article
-        fields = ['article_title', 'article_text']
+        fields = ['article_title', 'article_text', 'category']
 
 
 class UserProfileForm(forms.ModelForm):

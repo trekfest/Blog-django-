@@ -10,10 +10,10 @@
 
         <main>
             <section class="content">
-                <h2><a href="{% url 'articles:index' %}"><i class="fa-regular fa-newspaper"></i> Latest Articles</a></h2>
+                <h2><a href="{% url 'articles:index' %}"><i class="fa-regular fa-newspaper"></i> All articles</a></h2>
                 {% if latest_articles_list %}
                     <!-- Display a list of latest articles here -->
-                    {% for article in latest_articles_list %}
+                    {% for article in all_articles_list %}
                         <article>
                             <h3>{{ article.title }}</h3>
                             <p>{{ article.content }}</p>

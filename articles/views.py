@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.http import  Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
-from .models import Article, UserProfile
+from .models import Article, Category, UserProfile
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import  render, redirect, get_object_or_404
 from django.contrib.auth import login
@@ -13,13 +13,23 @@ from django.shortcuts import render
 from .forms import ArticleForm
 from .forms import UserProfileForm
 
+from django.shortcuts import render, get_object_or_404
+from .models import Article
+
 def homepage(request):
     return render(request, 'homepage.html')
 
+from .models import Category
 
 def index(request):
-    latest_articles_list = Article.objects.order_by('-pub_date')[:5]
-    return render(request, 'articles/list.html', {'latest_articles_list': latest_articles_list} )
+    all_articles_list = Article.objects.all()
+    categories = Category.objects.all()  # Fetch all categories
+    print(categories)
+    category_filter = request.GET.get('category')
+    if category_filter:
+        all_articles_list = all_articles_list.filter(category__name=category_filter)
+    return render(request, 'articles/list.html', {'all_articles_list': all_articles_list, 'categories': categories})
+
 
 
 
@@ -29,7 +39,7 @@ def detail(request, article_id):
     return render(request, 'articles/detail.html', {'article': article, 'latest_comments_list': latest_comments_list})
 
 
-from django.contrib.auth.decorators import login_required
+
 
 @login_required
 def leave_comment(request, article_id):
@@ -120,3 +130,17 @@ def user_create_article(request):
     else:
         form = ArticleForm()
     return render(request, 'registration/user_creation_article.html', {'form': form})
+
+
+
+@login_required
+def delete_article(request, article_id):
+    article = get_object_or_404(Article, pk=article_id)
+
+    # Verify that the logged-in user owns the article
+    if request.user == article.author and request.method == 'POST':
+        article.delete()
+        return redirect('profile')  
+
+   
+    return redirect('profile')
