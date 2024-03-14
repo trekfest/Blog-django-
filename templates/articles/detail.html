@@ -11,6 +11,7 @@
                 <p>{{ article.article_text }}</p>
                 <p>Author: {{ article.author.username }}</p>
                 <em>{{ article.pub_date|date:"F j, Y H:i" }}</em>
+                <p><i class="fas fa-eye"></i> {{ views_count }} views</p>
 
                 {% if article.was_published_recently %}
                     <p><strong>NEW ARTICLE!</strong></p>

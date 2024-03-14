@@ -6,21 +6,6 @@
     <div class="container">
         <div class="row">
             <div class="col-md-9">
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Filter by Category
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        {% for category in categories %}
-                            <a class="dropdown-item" href="?category={{ category.name }}">{{ category.name }}</a>
-                        {% endfor %}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href=".">Clear Filter</a>
-                    </div>
-                </div>
-                
-                
-
                 <div class="articles-list">
                     {% if all_articles_list %}
                         <ul class="list-group">
@@ -37,9 +22,39 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="dropdown mt-3 mt-md-0 text-md-end"> <!-- Align to right on medium screens and above -->
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="filterDropdownButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Filter by Category
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="filterDropdownButton">
+                        {% for category in categories %}
+                            <a class="dropdown-item" href="?category={{ category.name }}">{{ category.name }}</a>
+                        {% endfor %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href=".">Clear Filter</a>
+                    </div>
+                </div>
+
+                <!-- Add the sort dropdown menu -->
+                <div class="dropdown mt-3 text-md-end">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="sortDropdownButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Sort by
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="sortDropdownButton">
+                        <a class="dropdown-item" href="?category={{ request.GET.category|default:'' }}&sort=newest">Newest to Oldest</a>
+                        <a class="dropdown-item" href="?category={{ request.GET.category|default:'' }}&sort=oldest">Oldest to Newest</a>
+                    </div>                  
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
+
+
+
+
+
 
 
 

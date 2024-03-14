@@ -2,12 +2,20 @@
 
 {% block title %}User Profile{% endblock %}
 
+
+
 {% block content %}
 <div class="container-xxl">
     <div class="row">
         <div class="col-lg-3">
             <div class="profile">
                 <h2>User Profile <i class="fas fa-user"></i></h2>
+                <!-- Display User's Profile Image -->
+                {% if user_profile.profile_image %}
+                    <img src="{{ user_profile.profile_image.url }}" alt="Profile Image" class="profile-image">
+                {% else %}
+                    <p>No profile image found.</p>
+                {% endif %}
                 <p>Username: {{ user_profile.user.username }}</p>
                 <p>Bio: {{ user_profile.bio }}</p>
                 <a href="{% url 'update_profile' %}" class="btn btn-primary">Edit</a>
@@ -30,5 +38,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

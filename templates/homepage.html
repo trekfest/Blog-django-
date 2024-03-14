@@ -5,24 +5,29 @@
 {% block content %}
     <div class="wrapper">
         <header> 
-                <h1><i class="fa-solid fa-blog"></i> Welcome to the Homepage</h1>
+            <h1><i class="fa-solid fa-blog"></i> Welcome to the Homepage</h1>
         </header>
 
         <main>
             <section class="content">
-                <h2><a href="{% url 'articles:index' %}"><i class="fa-regular fa-newspaper"></i> All articles</a></h2>
+                <!-- Add a link to view all articles -->
+                <h2><a href="{% url 'articles:index' %}"><i class="fa-regular fa-newspaper"></i> View All Articles</a></h2>
+                
+                <!-- Display latest articles here -->
                 {% if latest_articles_list %}
-                    <!-- Display a list of latest articles here -->
-                    {% for article in all_articles_list %}
-                        <article>
-                            <h3>{{ article.title }}</h3>
-                            <p>{{ article.content }}</p>
-                            <!-- Add more details or links to the full article here -->
-                            <a href="{% url 'articles:detail' article.id %}">View Article</a>
-                        </article>
-                    {% endfor %}
+                    <ul>
+                        {% for article in latest_articles_list %}
+                            <li>
+                                <h3><a href="{% url 'articles:detail' article.id %}">{{ article.article_title }}</a></h3>
+                                <p>Username: {{ article.author.username }}</p>
+                                <p>Publish Time: {{ article.pub_date }}</p>
+                                <p>Amount of Comments: {{ article.comment_set.count }}</p>
+                                <p>{{ article.article_text }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 {% else %}
-                    
+                    <p>No articles available.</p>
                 {% endif %}
             </section>
         
@@ -32,5 +37,8 @@
         </main>
     </div>
 {% endblock %}
+
+
+
 
 

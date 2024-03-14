@@ -3,6 +3,8 @@ import datetime
 from django.db import models
 from django.utils import timezone
 from django.db import models
+from .utils import user_directory_path
+
 
 
 
@@ -20,6 +22,7 @@ class Article(models.Model):
     pub_date = models.DateTimeField('Date of the publication', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    
 
 
     def __str__(self):
@@ -27,6 +30,15 @@ class Article(models.Model):
 
     def was_published_recently(self):
         return self.pub_date >= (timezone.now() - datetime.timedelta(days=7))
+
+
+class ArticleView(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    views_count = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('user', 'article')
 
 class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
@@ -39,6 +51,7 @@ class Comment(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
+    profile_image = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
     
 
     def __str__(self):

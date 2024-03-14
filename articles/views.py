@@ -1,42 +1,66 @@
 from django.utils import timezone
-from django.http import  Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
-from .models import Article, Category, UserProfile
+from .models import Article, ArticleView, Category, UserProfile
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import  render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404  
 from django.contrib.auth import login
-from .forms import CreationUser
+from .forms import CreationUser, ArticleForm, UserProfileForm  
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.shortcuts import render
-from .forms import ArticleForm
-from .forms import UserProfileForm
-
-from django.shortcuts import render, get_object_or_404
-from .models import Article
+import os
 
 def homepage(request):
-    return render(request, 'homepage.html')
+    latest_articles_list = Article.objects.order_by('-pub_date')[:5]
+    return render(request, 'homepage.html', {'latest_articles_list': latest_articles_list})
 
-from .models import Category
 
 def index(request):
     all_articles_list = Article.objects.all()
-    categories = Category.objects.all()  # Fetch all categories
-    print(categories)
+    categories = Category.objects.all().order_by('name')
     category_filter = request.GET.get('category')
     if category_filter:
         all_articles_list = all_articles_list.filter(category__name=category_filter)
-    return render(request, 'articles/list.html', {'all_articles_list': all_articles_list, 'categories': categories})
+        print(f"Category filter applied: {category_filter}")
+
+    # Store the filtered articles in a variable
+    filtered_records = all_articles_list
+
+    # Sorting articles based on the provided sorting parameter
+    sort_by = request.GET.get('sort')
+    if sort_by == 'newest':
+        filtered_records = filtered_records.order_by('-pub_date')
+        print("Sorting by newest")
+    elif sort_by == 'oldest':
+        filtered_records = filtered_records.order_by('pub_date')
+        print("Sorting by oldest")
+
+    
+
+    return render(request, 'articles/list.html', {'all_articles_list': filtered_records, 'categories': categories})
+
 
 
 
 
 def detail(request, article_id):
     article = get_object_or_404(Article, id=article_id)
+    
+    # Increment the views_count for this article and user
+    if request.user.is_authenticated:
+        article_view, created = ArticleView.objects.get_or_create(user=request.user, article=article)
+        if created:
+            article_view.views_count += 1
+            article_view.save()
+    
     latest_comments_list = article.comment_set.order_by('-id')[:10]
-    return render(request, 'articles/detail.html', {'article': article, 'latest_comments_list': latest_comments_list})
+    views_count = article.articleview_set.aggregate(Sum('views_count'))['views_count__sum']
+    
+    return render(request, 'articles/detail.html', {'article': article, 'latest_comments_list': latest_comments_list, 'views_count': views_count})
+
+
 
 
 
@@ -105,15 +129,30 @@ def save_user_profile(sender, instance, **kwargs):
 
 @login_required
 def update_profile(request):
-    user_profile = request.user.userprofile
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=user_profile)
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
-            form.save()
-            return redirect('profile')  # Redirect to the user profile page
+            # Save the form without committing to access the profile image
+            user_profile = form.save(commit=False)
+            if user_profile.profile_image:
+                # If a new image is uploaded, save the profile and create the directory if needed
+                user_profile.save()
+                if not os.path.exists(user_profile.profile_image.path):
+                    os.makedirs(user_profile.profile_image.path)
+            else:
+                # If no new image is uploaded, save the profile directly
+                user_profile.save()
+            return redirect('profile')
     else:
         form = UserProfileForm(instance=user_profile)
     return render(request, 'articles/update_profile.html', {'form': form})
+
+
+
+
+
+
 
 
 
