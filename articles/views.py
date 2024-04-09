@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
-from .models import Article, ArticleView, Category, UserProfile
+from .models import Article, ArticleView, Category, UserProfile, Comment
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404  
 from django.contrib.auth import login
@@ -13,22 +13,22 @@ from django.dispatch import receiver
 import os
 
 def homepage(request):
-    latest_articles_list = Article.objects.order_by('-pub_date')[:5]
+    latest_articles_list = Article.objects.select_related('author').order_by('-pub_date')[:5]
     return render(request, 'homepage.html', {'latest_articles_list': latest_articles_list})
 
 
+
 def index(request):
-    all_articles_list = Article.objects.all()
-    categories = Category.objects.all().order_by('name')
+    # Start with an empty queryset
+    filtered_records = Article.objects.all()
+
+    # Apply category filter if provided
     category_filter = request.GET.get('category')
     if category_filter:
-        all_articles_list = all_articles_list.filter(category__name=category_filter)
+        filtered_records = filtered_records.filter(category__name=category_filter)
         print(f"Category filter applied: {category_filter}")
 
-    # Store the filtered articles in a variable
-    filtered_records = all_articles_list
-
-    # Sorting articles based on the provided sorting parameter
+    # Apply sorting based on the provided parameter
     sort_by = request.GET.get('sort')
     if sort_by == 'newest':
         filtered_records = filtered_records.order_by('-pub_date')
@@ -37,11 +37,10 @@ def index(request):
         filtered_records = filtered_records.order_by('pub_date')
         print("Sorting by oldest")
 
-    
+    # Fetch all categories
+    categories = Category.objects.all().order_by('name')
 
     return render(request, 'articles/list.html', {'all_articles_list': filtered_records, 'categories': categories})
-
-
 
 
 
@@ -55,8 +54,11 @@ def detail(request, article_id):
             article_view.views_count += 1
             article_view.save()
     
-    latest_comments_list = article.comment_set.order_by('-id')[:10]
-    views_count = article.articleview_set.aggregate(Sum('views_count'))['views_count__sum']
+    # Fetch latest comments using related manager
+    latest_comments_list = Comment.objects.filter(article=article).order_by('-id')[:10]
+    
+    # Fetch total views count using annotation
+    views_count = ArticleView.objects.filter(article=article).aggregate(total_views=Sum('views_count'))['total_views']
     
     return render(request, 'articles/detail.html', {'article': article, 'latest_comments_list': latest_comments_list, 'views_count': views_count})
 
@@ -65,24 +67,23 @@ def detail(request, article_id):
 
 
 
+
 @login_required
 def leave_comment(request, article_id):
-    try:
-        a = Article.objects.get(id=article_id)
-    except Article.DoesNotExist:
-        raise Http404("Article wasn't found")
+    article = get_object_or_404(Article, id=article_id)
 
     if request.method == 'POST':
-        csrf_token = request.POST.get('csrfmiddlewaretoken', '')
-        if not csrf_token:
-            # Handle the case where CSRF token is missing
-            return HttpResponseForbidden("CSRF token missing.")
-
-        a.comment_set.create(author_name=request.POST['name'], comment_text=request.POST['text'])
-
-        return HttpResponseRedirect(reverse('articles:detail', args=(a.id,)))
-    else:
+        # Django automatically checks CSRF token in POST requests, no need for manual check
+        author_name = request.POST.get('name')
+        comment_text = request.POST.get('text')
+        if not (author_name and comment_text):
+            return HttpResponseBadRequest("Invalid form submission.")
         
+        article.comment_set.create(author_name=author_name, comment_text=comment_text)
+        
+        # Redirect to the article detail page after successful comment submission
+        return HttpResponseRedirect(reverse('articles:detail', args=(article.id,)))
+    else:
         return HttpResponseBadRequest("Invalid request method.")
 
 
@@ -106,9 +107,15 @@ def register(request):
 
 @login_required
 def profile(request):
-    user_profile = request.user.userprofile
-    user_articles = Article.objects.filter(author=request.user).order_by('-pub_date')
-    return render(request, 'articles/profile.html', {'user_profile': user_profile, 'user_articles': user_articles}, )
+    # Ensure UserProfile exists for the logged-in user
+    try:
+        user_profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        user_profile = None
+    
+    # Fetch user's articles using select_related to minimize DB hits
+    user_articles = Article.objects.filter(author=request.user).order_by('-pub_date').select_related('author')
+    return render(request, 'articles/profile.html', {'user_profile': user_profile, 'user_articles': user_articles})
 
 
 
@@ -129,30 +136,15 @@ def save_user_profile(sender, instance, **kwargs):
 
 @login_required
 def update_profile(request):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_profile = get_object_or_404(UserProfile, user=request.user)
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
-            # Save the form without committing to access the profile image
-            user_profile = form.save(commit=False)
-            if user_profile.profile_image:
-                # If a new image is uploaded, save the profile and create the directory if needed
-                user_profile.save()
-                if not os.path.exists(user_profile.profile_image.path):
-                    os.makedirs(user_profile.profile_image.path)
-            else:
-                # If no new image is uploaded, save the profile directly
-                user_profile.save()
+            form.save()
             return redirect('profile')
     else:
         form = UserProfileForm(instance=user_profile)
     return render(request, 'articles/update_profile.html', {'form': form})
-
-
-
-
-
-
 
 
 

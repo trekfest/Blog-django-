@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('', views.homepage, name='homepage'),
     path('grappelli/', include('grappelli.urls')),
+    path("__debug__/", include("debug_toolbar.urls")),
     path("admin/", admin.site.urls),
     path('articles/', include('articles.urls')),
     path('register/',views.register, name = 'register'),
